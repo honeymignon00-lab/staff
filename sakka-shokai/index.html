@@ -14,6 +14,14 @@
 </style>
 </head>
 <body>
-<iframe src="https://script.google.com/macros/s/AKfycbxQNMdf7g7VmYyfMmVVohFIQhsLEKPY_TzKMeaGYnKm47oGLY8W9weaSU7pCyC6LN4_/exec" title="作家紹介" allow="clipboard-write"></iframe>
+<iframe id="app" title="作家紹介" allow="clipboard-write"></iframe>
+<script>
+(function () {
+  var base = "https://script.google.com/macros/s/AKfycbxQNMdf7g7VmYyfMmVVohFIQhsLEKPY_TzKMeaGYnKm47oGLY8W9weaSU7pCyC6LN4_/exec";
+  var extra = location.search ? location.search.slice(1) : "";
+  var url = extra ? base + (base.indexOf("?") < 0 ? "?" : "&") + extra : base;
+  document.getElementById("app").src = url + location.hash;
+})();
+</script>
 </body>
 </html>

@@ -14,6 +14,14 @@
 </style>
 </head>
 <body>
-<iframe src="https://script.google.com/macros/s/AKfycbwjnh5UgO6KW7ukXEjw4S601R0etN_OfXA-GQdiwnCYMOVRGbZ-tny1JNlhkmXE8BM2KQ/exec" title="空き時間タスク" allow="clipboard-write"></iframe>
+<iframe id="app" title="空き時間タスク" allow="clipboard-write"></iframe>
+<script>
+(function () {
+  var base = "https://script.google.com/macros/s/AKfycbwjnh5UgO6KW7ukXEjw4S601R0etN_OfXA-GQdiwnCYMOVRGbZ-tny1JNlhkmXE8BM2KQ/exec";
+  var extra = location.search ? location.search.slice(1) : "";
+  var url = extra ? base + (base.indexOf("?") < 0 ? "?" : "&") + extra : base;
+  document.getElementById("app").src = url + location.hash;
+})();
+</script>
 </body>
 </html>

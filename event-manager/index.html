@@ -14,6 +14,14 @@
 </style>
 </head>
 <body>
-<iframe src="https://script.google.com/macros/s/AKfycbx0HYktfZeO3Wd-b2UoVRuPJSNfyl1EhBrgT65dU9qmxUwxeYbmCGNkBBfYpaPgA7v-vg/exec" title="イベントマネージャー" allow="clipboard-write"></iframe>
+<iframe id="app" title="イベントマネージャー" allow="clipboard-write"></iframe>
+<script>
+(function () {
+  var base = "https://script.google.com/macros/s/AKfycbx0HYktfZeO3Wd-b2UoVRuPJSNfyl1EhBrgT65dU9qmxUwxeYbmCGNkBBfYpaPgA7v-vg/exec";
+  var extra = location.search ? location.search.slice(1) : "";
+  var url = extra ? base + (base.indexOf("?") < 0 ? "?" : "&") + extra : base;
+  document.getElementById("app").src = url + location.hash;
+})();
+</script>
 </body>
 </html>

@@ -14,6 +14,14 @@
 </style>
 </head>
 <body>
-<iframe src="https://script.google.com/macros/s/AKfycbx0iEnRDM8smPMu2pPjVloVywBB62m4o9mxe5uiUOwbfbks9Jt3vbljWPo_rzFXAP4U/exec" title="作家招待" allow="clipboard-write"></iframe>
+<iframe id="app" title="作家招待" allow="clipboard-write"></iframe>
+<script>
+(function () {
+  var base = "https://script.google.com/macros/s/AKfycbx0iEnRDM8smPMu2pPjVloVywBB62m4o9mxe5uiUOwbfbks9Jt3vbljWPo_rzFXAP4U/exec";
+  var extra = location.search ? location.search.slice(1) : "";
+  var url = extra ? base + (base.indexOf("?") < 0 ? "?" : "&") + extra : base;
+  document.getElementById("app").src = url + location.hash;
+})();
+</script>
 </body>
 </html>

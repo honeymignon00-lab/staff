@@ -14,6 +14,14 @@
 </style>
 </head>
 <body>
-<iframe src="https://script.google.com/macros/s/AKfycbwFZgduFjRCtsxTCWETlkjcDEgYCvZvIiv4DiQAloKeF3hGle_szvwc3tzvp0Eq1mfI/exec" title="作家レポート" allow="clipboard-write"></iframe>
+<iframe id="app" title="作家レポート" allow="clipboard-write"></iframe>
+<script>
+(function () {
+  var base = "https://script.google.com/macros/s/AKfycbwFZgduFjRCtsxTCWETlkjcDEgYCvZvIiv4DiQAloKeF3hGle_szvwc3tzvp0Eq1mfI/exec";
+  var extra = location.search ? location.search.slice(1) : "";
+  var url = extra ? base + (base.indexOf("?") < 0 ? "?" : "&") + extra : base;
+  document.getElementById("app").src = url + location.hash;
+})();
+</script>
 </body>
 </html>

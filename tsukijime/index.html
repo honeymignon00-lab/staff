@@ -14,6 +14,14 @@
 </style>
 </head>
 <body>
-<iframe src="https://script.google.com/macros/s/AKfycbwjGlSQgF_F6dSRGzMwlu1UmL7aDKFMXc_sT-LQ3ZvZMH4pHa9442xsGKGqpZv5TenDQA/exec" title="月締めレポート" allow="clipboard-write"></iframe>
+<iframe id="app" title="月締めレポート" allow="clipboard-write"></iframe>
+<script>
+(function () {
+  var base = "https://script.google.com/macros/s/AKfycbwjGlSQgF_F6dSRGzMwlu1UmL7aDKFMXc_sT-LQ3ZvZMH4pHa9442xsGKGqpZv5TenDQA/exec";
+  var extra = location.search ? location.search.slice(1) : "";
+  var url = extra ? base + (base.indexOf("?") < 0 ? "?" : "&") + extra : base;
+  document.getElementById("app").src = url + location.hash;
+})();
+</script>
 </body>
 </html>

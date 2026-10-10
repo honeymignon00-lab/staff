@@ -14,6 +14,14 @@
 </style>
 </head>
 <body>
-<iframe src="https://script.google.com/macros/s/AKfycbx0Jd-EOTfxRL4HNeid2ry_B8dGjweHaIUwIAlq49Eq2hqL_Tgpo4SzyUbmuT716El_/exec" title="インフルエンサー探し" allow="clipboard-write"></iframe>
+<iframe id="app" title="インフルエンサー探し" allow="clipboard-write"></iframe>
+<script>
+(function () {
+  var base = "https://script.google.com/macros/s/AKfycbx0Jd-EOTfxRL4HNeid2ry_B8dGjweHaIUwIAlq49Eq2hqL_Tgpo4SzyUbmuT716El_/exec";
+  var extra = location.search ? location.search.slice(1) : "";
+  var url = extra ? base + (base.indexOf("?") < 0 ? "?" : "&") + extra : base;
+  document.getElementById("app").src = url + location.hash;
+})();
+</script>
 </body>
 </html>
