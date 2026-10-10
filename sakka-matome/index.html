@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="作家まとめ">
+<title>作家まとめ</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;height:100%;background:#F5F2F8;font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN",system-ui,sans-serif}
+@media (prefers-color-scheme:dark){html,body{background:#15111A}}
+.bar{position:fixed;left:0;right:0;top:0;height:56px;padding:0 8px;padding-top:env(safe-area-inset-top);display:flex;gap:6px;align-items:center;background:#221C29;z-index:2}
+.bar button{flex:1;height:44px;border:0;border-radius:12px;background:transparent;color:#B9AFC6;font:inherit;font-size:15px;font-weight:700;cursor:pointer}
+.bar button[aria-selected="true"]{background:#C92C6B;color:#fff}
+.frames{position:fixed;left:0;right:0;bottom:0;top:calc(56px + env(safe-area-inset-top))}
+.frames iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:none;background:transparent}
+.frames iframe.on{display:block}
+</style>
+</head>
+<body>
+<nav class="bar" role="tablist">
+  <button type="button" role="tab" data-k="shokai">作家紹介</button>
+  <button type="button" role="tab" data-k="report">作家レポート</button>
+  <button type="button" role="tab" data-k="tsuinou">追納チェック</button>
+</nav>
+<div class="frames" id="frames"></div>
+<script>
+var APPS = {
+  shokai:  'https://script.google.com/macros/s/AKfycbxQNMdf7g7VmYyfMmVVohFIQhsLEKPY_TzKMeaGYnKm47oGLY8W9weaSU7pCyC6LN4_/exec',
+  report:  'https://script.google.com/macros/s/AKfycbwFZgduFjRCtsxTCWETlkjcDEgYCvZvIiv4DiQAloKeF3hGle_szvwc3tzvp0Eq1mfI/exec',
+  tsuinou: 'https://script.google.com/macros/s/AKfycbxQNMdf7g7VmYyfMmVVohFIQhsLEKPY_TzKMeaGYnKm47oGLY8W9weaSU7pCyC6LN4_/exec?page=tsuinou&v=6'
+};
+var frames = {}, box = document.getElementById('frames');
+function show(k){
+  if(!APPS[k]) k = 'shokai';
+  if(!frames[k]){
+    var f = document.createElement('iframe');
+    f.src = APPS[k]; f.title = k;
+    f.setAttribute('allow', 'clipboard-write');
+    box.appendChild(f); frames[k] = f;
+  }
+  for(var x in frames) frames[x].className = (x === k) ? 'on' : '';
+  var bs = document.querySelectorAll('.bar button');
+  for(var i = 0; i < bs.length; i++) bs[i].setAttribute('aria-selected', bs[i].getAttribute('data-k') === k ? 'true' : 'false');
+  try { localStorage.setItem('sakka-matome-tab', k); } catch(e) {}
+}
+var bs = document.querySelectorAll('.bar button');
+for(var i = 0; i < bs.length; i++) bs[i].onclick = function(){ show(this.getAttribute('data-k')); };
+var first = (location.hash || '').replace('#', '');
+if(!APPS[first]){ try { first = localStorage.getItem('sakka-matome-tab'); } catch(e) { first = null; } }
+show(first || 'shokai');
+</script>
+</body>
+</html>
