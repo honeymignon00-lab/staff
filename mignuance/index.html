@@ -7,6 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Mignuance">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <title>今日｜Mignuance</title>
 <style>
   html, body { margin: 0; padding: 0; height: 100%; background: #F3F4F8; overflow: hidden; }
@@ -15,6 +17,8 @@
   /* はめ込みで開けないとき用の小さな逃げ道（左下） */
   #direct { position: fixed; left: 10px; bottom: 8px; font: 11px/1.4 system-ui, sans-serif; color: #8A91A4; text-decoration: none; opacity: .55; z-index: 2; }
   #direct:hover { opacity: 1; text-decoration: underline; }
+  /* スマホでは下のタブと重なるので出さない */
+  @media (max-width: 760px) { #direct { display: none; } }
 </style>
 </head>
 <body>
