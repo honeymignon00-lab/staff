@@ -9,17 +9,12 @@
 <meta name="apple-mobile-web-app-title" content="Mignuance">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<script>if (window.navigator.standalone) document.documentElement.classList.add("standalone");</script>
 <title>今日｜Mignuance</title>
 <style>
   html, body { margin: 0; padding: 0; height: 100%; background: #F3F4F8; overflow: hidden; }
   @media (prefers-color-scheme: dark) { html, body { background: #0F1118; } }
-  iframe { position: fixed; inset: 0; width: 100%; height: 100%; border: 0; display: block; }
-  /* ホーム画面から全画面で開いたとき：時計の下・ホームバーの上に収める */
-  @media all and (display-mode: standalone) {
-    iframe { top: env(safe-area-inset-top); bottom: auto; height: calc(100% - env(safe-area-inset-top) - env(safe-area-inset-bottom)); }
-  }
-  html.standalone iframe { top: env(safe-area-inset-top); bottom: auto; height: calc(100% - env(safe-area-inset-top) - env(safe-area-inset-bottom)); }
+  #wrap { position: fixed; top: env(safe-area-inset-top); left: 0; right: 0; bottom: env(safe-area-inset-bottom); }
+  iframe { width: 100%; height: 100%; border: 0; display: block; }
   /* はめ込みで開けないとき用の小さな逃げ道（左下） */
   #direct { position: fixed; left: 10px; bottom: 8px; font: 11px/1.4 system-ui, sans-serif; color: #8A91A4; text-decoration: none; opacity: .55; z-index: 2; }
   #direct:hover { opacity: 1; text-decoration: underline; }
@@ -28,7 +23,7 @@
 </style>
 </head>
 <body>
-<iframe id="app" title="Mignuance" allow="clipboard-write"></iframe>
+<div id="wrap"><iframe id="app" title="Mignuance" allow="clipboard-write"></iframe></div>
 <a id="direct" target="_top" rel="noopener">開けないときはこちら</a>
 <script>
 (function () {
@@ -38,6 +33,18 @@
   var url = extra ? base + "?" + extra : base;
   document.getElementById("app").src = url + location.hash;
   document.getElementById("direct").href = url;
+  /* ホーム画面から全画面で起動した直後は画面の高さが小さく報告されることがあるので、
+     読み込み後や画面サイズが変わったときに枠を1px動かして、中身に高さを測り直させる */
+  var fr = document.getElementById("app");
+  function nudge() {
+    fr.style.height = "calc(100% - 1px)";
+    setTimeout(function () { fr.style.height = "100%"; }, 120);
+  }
+  fr.addEventListener("load", function () { setTimeout(nudge, 300); setTimeout(nudge, 1500); });
+  window.addEventListener("resize", function () { setTimeout(nudge, 200); });
+  window.addEventListener("orientationchange", function () { setTimeout(nudge, 400); });
+  window.addEventListener("pageshow", function () { setTimeout(nudge, 300); });
+  document.addEventListener("visibilitychange", function () { if (!document.hidden) setTimeout(nudge, 300); });
   /* アプリ側から届くタブ名（要対応の件数つき）を、このタブに反映する */
   window.addEventListener("message", function (e) {
     if (!/\.googleusercontent\.com$|^https:\/\/script\.google\.com$/.test(e.origin)) return;
