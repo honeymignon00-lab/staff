@@ -52,7 +52,8 @@
     '  .ms-nav .ms-l{display:none}.ms-nav .ms-s{display:block;white-space:nowrap}',
     '  .ms-nav.on{box-shadow:none;background:var(--ms-accent-soft);color:var(--ms-accent)}',
     '  .ms-home{border:0;background:transparent;margin:0}',
-    '  .ms-nav .ms-b{position:absolute;top:-2px;left:calc(50% + 4px);min-width:17px;height:17px;font-size:10px;padding:0 4px}',
+    '  .ms-nav .ms-x{display:none}',
+  '  .ms-nav .ms-b{position:absolute;top:-2px;left:calc(50% + 4px);min-width:17px;height:17px;font-size:10px;padding:0 4px}',
     '}'
   ].join('\n');
 
@@ -76,6 +77,9 @@
 
   function navHTML(it, on) {
     var b = it.badge ? '<span class="ms-b">' + esc(it.badge) + '</span>' : '';
+    /* href がある項目は、ほかのアプリへ移るボタン（スマホの下タブにも出る） */
+    if (it.href) return '<a class="ms-nav" href="' + esc(it.href) + '" target="' + esc(it.target || '_top') + '"' + (it.target === '_blank' ? ' rel="noopener"' : '') + '>'
+      + '<i class="ti ti-' + esc(it.icon || 'external-link') + '"></i><span class="ms-l">' + esc(it.label) + '</span><span class="ms-s">' + esc(it.short || it.label) + '</span><i class="ti ti-arrow-up-right ms-x"></i></a>';
     return '<button type="button" class="ms-nav' + (on ? ' on' : '') + '" data-ms="' + esc(it.id) + '"' + (it.title ? ' title="' + esc(it.title) + '"' : '') + '>'
       + '<i class="ti ti-' + esc(it.icon || 'point') + '"></i><span class="ms-l">' + esc(it.label) + '</span><span class="ms-s">' + esc(it.short || it.label) + '</span>' + b + '</button>';
   }
