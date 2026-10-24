@@ -124,6 +124,47 @@
       Object.keys(c || {}).forEach(function (k) { cfg[k] = c[k]; });
       draw();
     },
-    active: function () { return cfg && cfg.active; }
+    active: function () { return cfg && cfg.active; },
+    /* 既存アプリのタブ・メニューのボタンをそのまま写す（2026-10-25）
+       元のボタンは隠して残し、こちらで押されたら元のボタンを押す。元の数字（バッジ）や選択状態も自動で追いかける。
+       MSide.mirror({ app:'採用管理', buttons:'.tabs .tab', watch:'.tabs', hide:'.tabs',
+                      key:function(b){return b.dataset.tab}, icons:{list:'users'}, shorts:{list:'応募者'}, home:true }) */
+    mirror: function (o) {
+      var t = null, last = '';
+      function keyOf(b, i) { return o.key ? String(o.key(b)) : (b.id || String(i)); }
+      function read() {
+        return [].slice.call(document.querySelectorAll(o.buttons)).map(function (b, i) {
+          var k = keyOf(b, i);
+          var bd = b.querySelector(o.badge || '.bdg,.badge,.cnt,.b');
+          var bt = bd ? bd.textContent.trim() : '';
+          var cut = b.querySelector('.bdg,.badge,.cnt,.b,.ms-none'), ct = cut ? cut.textContent.trim() : '';
+          var lab = (o.labels && o.labels[k]) || b.textContent.replace(ct, '').replace(/\s+/g, ' ').trim();
+          var ic = b.querySelector('i.ti'), m = ic && /ti-([\w-]+)/.exec(ic.className);
+          return { id: k, label: lab, short: (o.shorts && o.shorts[k]) || lab, icon: (o.icons && o.icons[k]) || (m && m[1]) || 'point',
+            badge: bt && bt !== '0' ? bt : 0, on: b.classList.contains(o.onClass || 'on') };
+        });
+      }
+      function sync() {
+        var it = read(), act = (it.filter(function (x) { return x.on; })[0] || {}).id;
+        var sig = JSON.stringify(it) + act;
+        if (sig === last) return; last = sig;
+        if (!it.length) { if (root) root.style.display = 'none'; document.documentElement.classList.remove('ms-on'); return; }
+        if (root) root.style.display = '';
+        var c = { app: o.app, items: it, links: o.links || [], active: act, home: o.home, homeUrl: o.homeUrl, homeTarget: o.homeTarget, theme: o.theme,
+          onSelect: function (id) {
+            var bs = [].slice.call(document.querySelectorAll(o.buttons));
+            for (var i = 0; i < bs.length; i++) if (keyOf(bs[i], i) === id) { bs[i].click(); break; }
+            setTimeout(sync, 0);
+          } };
+        if (cfg) { document.documentElement.classList.add('ms-on'); window.MSide.update(c); } else window.MSide.mount(c);
+      }
+      addHead();
+      if (o.hide) { var s = document.createElement('style'); s.textContent = o.hide + '{display:none !important}'; document.head.appendChild(s); }
+      var w = document.querySelector(o.watch || 'body') || document.body;
+      new MutationObserver(function () { clearTimeout(t); t = setTimeout(sync, 60); })
+        .observe(w, { subtree: true, childList: true, attributes: true, attributeFilter: ['class'], characterData: true });
+      sync();
+      return { sync: sync };
+    }
   };
 })();

@@ -19,6 +19,8 @@
 (function () {
   var base = "https://script.google.com/macros/s/AKfycbxB_yWpgQFzuixLszqvGxVdYbrGUonxIy4k1-Um1nEf-ii2ka2aVuVvBitEjqafvkn_tA/exec";
   var extra = location.search ? location.search.slice(1) : "";
+  /* この端末でMignuanceを開いたことがあれば（＝正貴さん）、左メニューに「Mignuance」に戻るボタンを出す */
+  try { if (localStorage.getItem("mignuance_k")) extra = (extra ? extra + "&" : "") + "ms=1"; } catch (e) {}
   var url = extra ? base + (base.indexOf("?") < 0 ? "?" : "&") + extra : base;
   document.getElementById("app").src = url + location.hash;
 })();
