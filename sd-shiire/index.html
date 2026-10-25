@@ -26,7 +26,9 @@
 (function () {
   var API = "https://script.google.com/macros/s/AKfycbwGA3L4n7Bl5MMz9O1LmKSeTMaFia4FlkkE1p9VbATEU_9WKdAl7UaoDIf3UMj7Sm-m/exec";
   var page = new URLSearchParams(location.search).get("page") || "";
+  // 合言葉：URLの ?k= → 無ければMignuanceの入口がこの端末に覚えている合言葉（同じgithub.ioの mignuance_k）
   var K = new URLSearchParams(location.search).get("k") || "";
+  try { if (K) localStorage.setItem("mignuance_k", K); else K = localStorage.getItem("mignuance_k") || ""; } catch (x) {}
 
   // 画面の中で google.script.run の代わりをする部品（画面のHTMLの先頭に差し込む）
   var shim = "(" + function (API, K) {
@@ -80,11 +82,11 @@
     el.textContent = "開けませんでした：" + msg + "　（画面を下に引っぱって読み込み直してください）";
   }
 
-  var qs = new URLSearchParams(location.search); qs.set("api", "html");
+  var qs = new URLSearchParams(location.search); qs.set("api", "html"); if (K) qs.set("k", K);
   fetch(API + "?" + qs.toString())
     .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.text(); })
     .then(function (html) {
-      if (html.indexOf("<") < 0) throw new Error("画面のデータが空です");
+      if (html.indexOf("<") < 0) throw new Error(html ? html + (K ? "（合言葉 " + K.length + "文字）" : "（合言葉が届いていません）") : "画面のデータが空です");
       var title = "SD仕入れ枠と回収";
       var out;
       if (/<head[^>]*>/i.test(html)) out = html.replace(/<head[^>]*>/i, function (m) { return m + head; });
