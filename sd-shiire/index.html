@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="SD仕入れ枠">
+<title>SD仕入れ枠と回収</title>
+<style>
+  body { margin: 0; font-family: -apple-system, "Hiragino Sans", sans-serif; background: #f6f5f2; color: #2c2c2a; }
+  #ld { padding: 40px 20px; text-align: center; font-size: 15px; }
+  #ld.err { color: #ff9aa8; }
+</style>
+</head>
+<body>
+<div id="ld">読み込み中…</div>
+<script>
+/*
+ * SD仕入れ枠と回収の入口（2026-10-26）。作りは kanko と同じ。合言葉（?k=）を毎回GASへ添える
+ * はめ込み（iframe）は使わない。GASから画面のHTMLを受け取ってこのページに表示し、
+ * 画面の google.script.run をGASへの通信（fetch）に置き換える。
+ * アプリの修正はGAS側だけでよい（この入口は変えなくてよい）。
+ */
+(function () {
+  var API = "https://script.google.com/macros/s/AKfycbwGA3L4n7Bl5MMz9O1LmKSeTMaFia4FlkkE1p9VbATEU_9WKdAl7UaoDIf3UMj7Sm-m/exec";
+  var page = new URLSearchParams(location.search).get("page") || "";
+  var K = new URLSearchParams(location.search).get("k") || "";
+
+  // 画面の中で google.script.run の代わりをする部品（画面のHTMLの先頭に差し込む）
+  var shim = "(" + function (API, K) {
+    function call(fn, args, ok, ng) {
+      var done = false;
+      var timer = setTimeout(function () {
+        if (done) return; done = true;
+        if (ng) ng(new Error("通信がタイムアウトしました。電波を確認してもう一度押してください"));
+      }, 30000);
+      fetch(API, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({ fn: fn, args: args, k: K })
+      }).then(function (r) { return r.json(); })
+        .then(function (j) {
+          if (done) return; done = true; clearTimeout(timer);
+          if (j.ok) { if (ok) ok(j.result); }
+          else if (ng) ng(new Error(j.error));
+        })
+        .catch(function (e) {
+          if (done) return; done = true; clearTimeout(timer);
+          if (ng) ng(new Error("通信できませんでした（" + (e && e.message || e) + "）"));
+        });
+    }
+    function runner(ok, ng) {
+      return new Proxy({}, {
+        get: function (t, p) {
+          if (p === "withSuccessHandler") return function (f) { return runner(f, ng); };
+          if (p === "withFailureHandler") return function (f) { return runner(ok, f); };
+          if (p === "withUserObject") return function () { return runner(ok, ng); };
+          return function () { call(p, Array.prototype.slice.call(arguments), ok, ng); };
+        }
+      });
+    }
+    window.google = { script: {
+      run: runner(null, null),
+      host: { close: function () {}, setHeight: function () {}, setWidth: function () {} },
+      url: { getLocation: function (cb) { cb({ parameter: {}, parameters: {}, hash: "" }); } }
+    } };
+  }.toString() + ")(" + JSON.stringify(API) + "," + JSON.stringify(K) + ");";
+
+  var head = '<meta charset="utf-8">' +
+    '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">' +
+    '<meta name="apple-mobile-web-app-capable" content="yes">' +
+    '<meta name="robots" content="noindex, nofollow">' +
+    '<script>' + shim + '<\/script>';
+
+  function fail(msg) {
+    var el = document.getElementById("ld");
+    el.className = "err";
+    el.textContent = "開けませんでした：" + msg + "　（画面を下に引っぱって読み込み直してください）";
+  }
+
+  var qs = new URLSearchParams(location.search); qs.set("api", "html");
+  fetch(API + "?" + qs.toString())
+    .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.text(); })
+    .then(function (html) {
+      if (html.indexOf("<") < 0) throw new Error("画面のデータが空です");
+      var title = "SD仕入れ枠と回収";
+      var out;
+      if (/<head[^>]*>/i.test(html)) out = html.replace(/<head[^>]*>/i, function (m) { return m + head; });
+      else out = "<!doctype html><html lang='ja'><head>" + head + "</head><body>" + html + "</body></html>";
+      if (!/<title>/i.test(out)) out = out.replace(/<\/head>/i, "<title>" + title + "</title></head>");
+      document.open(); document.write(out); document.close();
+    })
+    .catch(function (e) { fail(e && e.message || String(e)); });
+})();
+</script>
+</body>
+</html>
