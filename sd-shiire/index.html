@@ -39,21 +39,24 @@
       var timer = setTimeout(function () {
         if (done) return; done = true;
         if (ng) ng(new Error("通信がタイムアウトしました。電波を確認してもう一度押してください"));
-      }, 30000);
-      fetch(API, {
-        method: "POST",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify({ fn: fn, args: args, k: K })
-      }).then(function (r) { return r.json(); })
-        .then(function (j) {
+      }, 45000);
+      function finish(j) {
+        if (done) return; done = true; clearTimeout(timer);
+        if (j.ok) { if (ok) ok(j.result); } else if (ng) ng(new Error(j.error));
+      }
+      function viaGet(firstErr) {
+        var q = "?api=call&fn=" + encodeURIComponent(fn) + "&args=" + encodeURIComponent(JSON.stringify(args)) + "&k=" + encodeURIComponent(K);
+        fetch(API + q).then(function (r) { return r.json(); }).then(finish).catch(function (e) {
           if (done) return; done = true; clearTimeout(timer);
-          if (j.ok) { if (ok) ok(j.result); }
-          else if (ng) ng(new Error(j.error));
-        })
-        .catch(function (e) {
-          if (done) return; done = true; clearTimeout(timer);
-          if (ng) ng(new Error("通信できませんでした（" + (e && e.message || e) + "）"));
+          if (ng) ng(new Error("通信できませんでした（" + (e && e.message || e) + " / " + firstErr + "）"));
         });
+      }
+      // 読み書きはGETで送る（POSTは端末によって通らないことがあるため）。長すぎるときだけPOST
+      var body = JSON.stringify({ fn: fn, args: args, k: K });
+      if (body.length < 1500) { viaGet("GET"); return; }
+      fetch(API, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: body })
+        .then(function (r) { return r.json(); }).then(finish)
+        .catch(function (e) { viaGet(e && e.message || String(e)); });
     }
     function runner(ok, ng) {
       return new Proxy({}, {
