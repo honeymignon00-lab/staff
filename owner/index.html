@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Mignuance Co.">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#72243E">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="favicon.png">
+<title>Mignuance Co.｜オーナー</title>
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; background: #F7F3F4; overflow: hidden; }
+  iframe { position: fixed; inset: 0; width: 100%; height: 100%; border: 0; display: block; }
+  #ng { display: none; padding: 48px 24px; text-align: center; font: 14px/1.8 "Hiragino Sans", system-ui, sans-serif; color: #7A6A70; }
+</style>
+</head>
+<body>
+<div id="ng">このページは、もらったリンクから開いてください。</div>
+<iframe id="app" title="Mignuance Co. オーナー" allow="clipboard-write"></iframe>
+<script>
+/* オーナーのアプリの入口（2026-10-28）。中身はMignuanceのApps Script（view=owner）。
+   鍵（?s=）はこの端末に覚えておき、鍵なしで開いたときに付け足す */
+(function () {
+  var base = "https://script.google.com/macros/s/AKfycbw8eWSgkGwNVdWxgAD1J1ScULO4AcmR-Xw36S2rfkC1_ONp-toWte0olhW3FnXj2eq6/exec";
+  var s = new URLSearchParams(location.search).get("s") || "";
+  try { if (s) localStorage.setItem("owner_s", s); else s = localStorage.getItem("owner_s") || ""; } catch (e) {}
+  if (!s) { document.getElementById("ng").style.display = "block"; document.getElementById("app").style.display = "none"; return; }
+  document.getElementById("app").src = base + "?view=owner&s=" + encodeURIComponent(s);
+})();
+</script>
+</body>
+</html>
