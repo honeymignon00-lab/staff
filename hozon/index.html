@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#72243E">
+<title>画像を保存</title>
+<style>
+/* 画像の保存専用ページ（2026-10-28）
+   アプリの中（入れ子）だとiPhoneの「写真に保存」が開けず1枚しか保存できなかったため、保存だけをここで行う。
+   開くとすぐ1枚ずつ取り寄せ（失敗は自動でやり直し）、全部そろってからボタンを出す。
+   iPhone＝共有シートで全部まとめて「画像を保存」／Mac＝1つのzipファイルで保存 */
+:root{--wine:#72243E;--gold:#FAC775;--ground:#F4EFF1;--surface:#fff;--ink:#2A1A20;--muted:#7A6A70;--line:#ECE2E5;--ok:#1E7A3C;--alert:#C93A4A}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--ground);color:var(--ink);font-family:-apple-system,"Hiragino Sans","Hiragino Kaku Gothic ProN",sans-serif;-webkit-font-smoothing:antialiased}
+.top{background:var(--wine);color:#fff;padding:calc(12px + env(safe-area-inset-top)) 16px 14px;display:flex;align-items:center;gap:10px}
+.top b{flex:1;font-size:17px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.top button{border:0;background:transparent;color:var(--gold);font:inherit;font-size:16px;padding:6px 4px}
+.wrap{padding:16px 16px calc(28px + env(safe-area-inset-bottom));max-width:640px;margin:0 auto}
+.st{font-size:14px;color:var(--muted);margin:2px 2px 12px;line-height:1.6}
+.st.ok{color:var(--ok)}
+.st.err{color:var(--alert)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;border-radius:14px;overflow:hidden;margin-bottom:16px}
+.cell{aspect-ratio:1/1;background:var(--line);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:13px;position:relative}
+.cell img{width:100%;height:100%;object-fit:cover;display:block}
+.cell.ng{background:#FBE7E9;color:var(--alert)}
+.go{display:block;width:100%;border:0;border-radius:14px;background:var(--wine);color:#fff;font:inherit;font-size:17px;font-weight:600;min-height:56px;margin-bottom:10px}
+.go:disabled{background:#C9B5BC}
+.sub{display:block;width:100%;border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--ink);font:inherit;font-size:15px;min-height:48px;margin-bottom:10px}
+.note{font-size:12.5px;color:var(--muted);line-height:1.7;margin:8px 2px 0}
+</style>
+</head>
+<body>
+<div class="top"><b id="ttl">画像を保存</b><button id="close">閉じる</button></div>
+<div class="wrap">
+  <p class="st" id="st">画像を準備しています…</p>
+  <div class="grid" id="grid"></div>
+  <button class="go" id="go" disabled>準備中…</button>
+  <button class="sub" id="alt" style="display:none"></button>
+  <button class="sub" id="retry" style="display:none">取れなかった画像をもう一度取る</button>
+  <p class="note" id="note"></p>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+(function () {
+  var MIG = "https://script.google.com/macros/s/AKfycbw8eWSgkGwNVdWxgAD1J1ScULO4AcmR-Xw36S2rfkC1_ONp-toWte0olhW3FnXj2eq6/exec";
+  var INF = "https://script.google.com/macros/s/AKfycbx0Jd-EOTfxRL4HNeid2ry_B8dGjweHaIUwIAlq49Eq2hqL_Tgpo4SzyUbmuT716El_/exec";
+  var q = new URLSearchParams(location.search), app = q.get("app") || "";
+  var $ = function (id) { return document.getElementById(id); };
+  var IOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  var FILES = [], TOTAL = 0, NAME = q.get("name") || "", FAIL = {};
+
+  function url(i) {
+    if (app === "sakka") return MIG + "?api=shareimg&s=" + encodeURIComponent(q.get("s") || "") + "&ev=" + encodeURIComponent(q.get("ev") || "") + "&row=" + encodeURIComponent(q.get("row") || "") + "&i=" + i;
+    if (app === "tencho") return INF + "?act=ownerimgapi&k=" + encodeURIComponent(q.get("k") || "") + "&id=" + encodeURIComponent(q.get("id") || "") + "&i=" + i;
+    return "";
+  }
+  function safe(t) { return String(t || "image").replace(/[\\/:*?"<>|\s]+/g, "_").slice(0, 40); }
+  function st(t, cls) { var e = $("st"); e.textContent = t; e.className = "st" + (cls ? " " + cls : ""); }
+
+  function get(i, tries) {
+    return fetch(url(i), { redirect: "follow" }).then(function (r) { return r.json(); }).then(function (j) {
+      if (!j.ok) throw new Error(j.error || "取れませんでした");
+      return j;
+    }).catch(function (e) {
+      if (tries > 1) return new Promise(function (ok) { setTimeout(ok, 1200); }).then(function () { return get(i, tries - 1); });
+      throw e;
+    });
+  }
+  function toFile(j, i) {
+    var bin = atob(j.b64), a = new Uint8Array(bin.length);
+    for (var k = 0; k < bin.length; k++) a[k] = bin.charCodeAt(k);
+    var ext = /png/.test(j.type) ? "png" : /webp/.test(j.type) ? "webp" : /heic/.test(j.type) ? "heic" : "jpg";
+    return new File([a], safe(NAME) + "_" + (i + 1) + "." + ext, { type: j.type || "image/jpeg" });
+  }
+  function cell(i, f, err) {
+    var c = $("grid").children[i]; if (!c) return;
+    if (f) { c.className = "cell"; c.innerHTML = ""; var im = new Image(); im.alt = (i + 1) + "枚目"; im.src = URL.createObjectURL(f); c.appendChild(im); }
+    else if (err) { c.className = "cell ng"; c.textContent = (i + 1) + "枚目：取れませんでした"; }
+  }
+  function layout(n) { var h = ""; for (var i = 0; i < n; i++) h += '<div class="cell">' + (i + 1) + "枚目 準備中…</div>"; $("grid").innerHTML = h; }
+
+  /* 1枚ずつ順番に取る（同時に取ると大きい写真で失敗しやすいため） */
+  function fetchFrom(list) {
+    return list.reduce(function (p, i) {
+      return p.then(function () {
+        st("画像を準備しています… " + (FILES.filter(Boolean).length + 1) + " / " + TOTAL);
+        return get(i, 3).then(function (j) { FILES[i] = toFile(j, i); delete FAIL[i]; cell(i, FILES[i]); }, function () { FAIL[i] = 1; cell(i, null, true); });
+      });
+    }, Promise.resolve()).then(ready);
+  }
+  function ready() {
+    var got = FILES.filter(Boolean).length, ng = Object.keys(FAIL).length;
+    $("retry").style.display = ng ? "block" : "none";
+    if (!got) { st("画像を取れませんでした。少し待って「もう一度取る」を押してください", "err"); $("go").textContent = "保存できる画像がありません"; return; }
+    st(ng ? got + "枚 準備できました（" + ng + "枚は取れませんでした）" : "全部（" + got + "枚）準備できました", ng ? "err" : "ok");
+    $("go").disabled = false;
+    if (IOS) {
+      $("go").textContent = "写真に保存（" + got + "枚）";
+      $("note").textContent = "押すと出てくる画面で「" + got + "枚の画像を保存」を選んでください。1枚ずつ保存したいときは、画像を長押し →「写真に保存」。";
+    } else {
+      $("go").textContent = got + "枚をまとめて保存（zip）";
+      $("alt").style.display = "block"; $("alt").textContent = "1枚ずつ保存する";
+      $("note").textContent = "zipはダウンロードフォルダに入ります。開くと" + got + "枚の画像が出てきます。";
+    }
+  }
+  function list() { return FILES.map(function (f) { return f; }).filter(Boolean); }
+  function zip() {
+    if (!window.JSZip) { one(); return; }
+    var z = new JSZip(); list().forEach(function (f) { z.file(f.name, f); });
+    z.generateAsync({ type: "blob" }).then(function (b) { dl(b, safe(NAME) + "_画像.zip"); st("zipを保存しました", "ok"); });
+  }
+  function dl(blob, name) { var u = URL.createObjectURL(blob), a = document.createElement("a"); a.href = u; a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(function () { URL.revokeObjectURL(u); }, 8000); }
+  function one() { list().forEach(function (f, i) { setTimeout(function () { dl(f, f.name); }, i * 600); }); }
+
+  $("go").addEventListener("click", function () {
+    var fs = list(); if (!fs.length) return;
+    if (IOS && navigator.canShare && navigator.canShare({ files: fs })) {
+      navigator.share({ files: fs }).then(function () { st("保存しました", "ok"); }, function (e) { if (!e || e.name !== "AbortError") st("保存の画面を開けませんでした。画像を長押し →「写真に保存」で保存してください", "err"); });
+      return;
+    }
+    if (IOS) { st("この画面では一括保存ができません。画像を長押し →「写真に保存」で保存してください", "err"); return; }
+    zip();
+  });
+  $("alt").addEventListener("click", one);
+  $("retry").addEventListener("click", function () { $("retry").style.display = "none"; fetchFrom(Object.keys(FAIL).map(Number)); });
+  $("close").addEventListener("click", function () { window.close(); setTimeout(function () { history.back(); }, 300); });
+
+  if (!url(0)) { st("このページは、アプリの「画像を保存」から開いてください。", "err"); $("go").textContent = "開き方が違います"; return; }
+  if (NAME) $("ttl").textContent = NAME;
+  get(0, 3).then(function (j) {
+    TOTAL = j.total || 0; NAME = NAME || j.name || "image"; $("ttl").textContent = NAME;
+    if (!TOTAL) { st("画像がありません", "err"); $("go").textContent = "保存できる画像がありません"; return; }
+    layout(TOTAL);
+    if (j.b64) { FILES[0] = toFile(j, 0); cell(0, FILES[0]); }
+    var rest = []; for (var i = j.b64 ? 1 : 0; i < TOTAL; i++) rest.push(i);
+    fetchFrom(rest);
+  }, function (e) { st("画像を取れませんでした：" + (e && e.message ? e.message : e), "err"); $("go").textContent = "保存できる画像がありません"; });
+})();
+</script>
+</body>
+</html>
