@@ -7,20 +7,24 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Mignuance Co.">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#72243E">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" href="favicon.png">
 <title>Mignuance Co.｜オーナー</title>
 <style>
-  html, body { margin: 0; padding: 0; height: 100%; background: #F7F3F4; overflow: hidden; }
-  iframe { position: fixed; inset: 0; width: 100%; height: 100%; border: 0; display: block; }
+  html, body { margin: 0; padding: 0; height: 100%; background: #FFFFFF; overflow: hidden; }
+  /* 上の時計・電池の帯はアプリの色、下のホームバーの帯は白。中身はその間に収める（2026-10-28 iPhone専用） */
+  #top { position: fixed; top: 0; left: 0; right: 0; height: env(safe-area-inset-top); background: #72243E; }
+  #wrap { position: fixed; top: env(safe-area-inset-top); left: env(safe-area-inset-left); right: env(safe-area-inset-right); bottom: env(safe-area-inset-bottom); }
+  iframe { width: 100%; height: 100%; border: 0; display: block; }
   #ng { display: none; padding: 48px 24px; text-align: center; font: 14px/1.8 "Hiragino Sans", system-ui, sans-serif; color: #7A6A70; }
 </style>
 </head>
 <body>
 <div id="ng">このページは、もらったリンクから開いてください。</div>
-<iframe id="app" title="Mignuance Co. オーナー" allow="clipboard-write"></iframe>
+<div id="top"></div>
+<div id="wrap"><iframe id="app" title="Mignuance Co. オーナー" allow="clipboard-write"></iframe></div>
 <script>
 /* オーナーのアプリの入口（2026-10-28）。中身はMignuanceのApps Script（view=owner）。
    鍵（?s=）はこの端末に覚えておき、鍵なしで開いたときに付け足す */
