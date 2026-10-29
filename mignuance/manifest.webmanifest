@@ -1,0 +1,9 @@
+{
+  "name": "Mignuance",
+  "short_name": "Mignuance",
+  "display": "standalone",
+  "scope": "./",
+  "background_color": "#F3F4F8",
+  "theme_color": "#F3F4F8",
+  "icons": [{ "src": "apple-touch-icon.png", "sizes": "180x180", "type": "image/png" }]
+}
