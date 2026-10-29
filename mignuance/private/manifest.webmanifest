@@ -1,0 +1,9 @@
+{
+  "name": "プライベート",
+  "short_name": "プライベート",
+  "display": "standalone",
+  "scope": "./",
+  "background_color": "#F4F3EF",
+  "theme_color": "#F4F3EF",
+  "icons": [{ "src": "apple-touch-icon-v2.png", "sizes": "180x180", "type": "image/png" }, { "src": "icon-512-v2.png", "sizes": "512x512", "type": "image/png" }]
+}

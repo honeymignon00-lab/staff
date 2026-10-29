@@ -9,6 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="プライベート">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="apple-touch-icon" href="apple-touch-icon-v2.png">
+<link rel="manifest" href="manifest.webmanifest">
 <title>プライベート</title>
 <link rel="icon" type="image/png" href="icon-512-v2.png">
 <style>
@@ -21,11 +22,15 @@
   #direct:hover { opacity: 1; text-decoration: underline; }
   /* スマホでは下のタブと重なるので出さない */
   @media (max-width: 760px) { #direct { display: none; } }
+  /* ホーム画面のアイコンのバッジを有効にするボタン（通知が未許可のときだけ出る） */
+  #badgeOn { display: none; position: fixed; top: calc(env(safe-area-inset-top) + 6px); left: 50%; transform: translateX(-50%); z-index: 3; font: 13px/1 system-ui, sans-serif; padding: 9px 14px; border-radius: 999px; border: 0; background: #2F3A4A; color: #fff; }
+  #badgeOn .x { margin-left: 10px; opacity: .6; }
 </style>
 </head>
 <body>
 <div id="wrap"><iframe id="app" title="プライベート" allow="clipboard-write"></iframe></div>
 <a id="direct" target="_top" rel="noopener">開けないときはこちら</a>
+<button id="badgeOn" type="button">アイコンに公的機関更新の件数を出す<span class="x" id="badgeNo">×</span></button>
 <script>
 (function () {
   /* 中身はApps Scriptのウェブアプリ（アクセス＝本人のみ）。ここは入口だけ */
@@ -63,7 +68,32 @@
     if (!/\.googleusercontent\.com$|^https:\/\/script\.google\.com$/.test(e.origin)) return;
     var t = e.data && e.data.mignuanceTitle;
     if (typeof t === "string" && t.length < 80) document.title = t;
+    /* 公的機関更新の「いま手続きが必要」の件数をホーム画面のアイコンのバッジにする（2026-10-30） */
+    var n = e.data && e.data.mignuanceBadge;
+    if (typeof n === "number") setBadge(n);
   });
+  var lastN = null;
+  function setBadge(n) {
+    lastN = n;
+    try {
+      if (!("setAppBadge" in navigator)) return;
+      if (n > 0) navigator.setAppBadge(n).catch(function () {});
+      else navigator.clearAppBadge().catch(function () {});
+    } catch (e) {}
+  }
+  try { if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js", { scope: "./" }); } catch (e) {}
+  /* 通知の許可がまだのとき、ホーム画面から開いた場合だけボタンを出す。×で出さない */
+  var btn = document.getElementById("badgeOn");
+  try {
+    var standalone = window.navigator.standalone || matchMedia("(display-mode: standalone)").matches;
+    if (standalone && "setAppBadge" in navigator && window.Notification && Notification.permission === "default" && localStorage.getItem("mignuance_pv_badge_no") !== "1") btn.style.display = "block";
+  } catch (e) {}
+  btn.addEventListener("click", function (ev) {
+    btn.style.display = "none";
+    if (ev.target.id === "badgeNo") { try { localStorage.setItem("mignuance_pv_badge_no", "1"); } catch (e) {} return; }
+    Notification.requestPermission().then(function (p) { if (p === "granted" && lastN !== null) setBadge(lastN); });
+  });
+
 })();
 </script>
 </body>
