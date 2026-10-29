@@ -30,7 +30,7 @@
 <body>
 <div id="wrap"><iframe id="app" title="プライベート" allow="clipboard-write"></iframe></div>
 <a id="direct" target="_top" rel="noopener">開けないときはこちら</a>
-<button id="badgeOn" type="button">アイコンに公的機関更新の件数を出す<span class="x" id="badgeNo">×</span></button>
+<button id="badgeOn" type="button">アイコンに件数を出す（公的機関更新・重要タスク）<span class="x" id="badgeNo">×</span></button>
 <script>
 (function () {
   /* 中身はApps Scriptのウェブアプリ（アクセス＝本人のみ）。ここは入口だけ */
@@ -68,7 +68,7 @@
     if (!/\.googleusercontent\.com$|^https:\/\/script\.google\.com$/.test(e.origin)) return;
     var t = e.data && e.data.mignuanceTitle;
     if (typeof t === "string" && t.length < 80) document.title = t;
-    /* 公的機関更新の「いま手続きが必要」の件数をホーム画面のアイコンのバッジにする（2026-10-30） */
+    /* 公的機関更新の「いま手続きが必要」＋To Doの重要の件数をホーム画面のアイコンのバッジにする（2026-10-30） */
     var n = e.data && e.data.mignuanceBadge;
     if (typeof n === "number") setBadge(n);
   });
