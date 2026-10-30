@@ -33,7 +33,9 @@
   var s = new URLSearchParams(location.search).get("s") || "";
   try { if (s) localStorage.setItem("owner_s", s); else s = localStorage.getItem("owner_s") || ""; } catch (e) {}
   if (!s) { document.getElementById("ng").style.display = "block"; document.getElementById("app").style.display = "none"; return; }
-  document.getElementById("app").src = base + "?view=owner&s=" + encodeURIComponent(s);
+  /* メールのボタンから来たとき（&go=<項目ID>）はその項目を直接開く 2026-10-31 */
+  var go = new URLSearchParams(location.search).get("go") || "";
+  document.getElementById("app").src = base + "?view=owner&s=" + encodeURIComponent(s) + (/^[0-9a-f]{32}$/.test(go) ? "&go=" + go : "");
 })();
 </script>
 </body>
