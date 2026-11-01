@@ -1,0 +1,9 @@
+{
+  "name": "空き時間タスク",
+  "short_name": "空き時間",
+  "display": "standalone",
+  "scope": "./",
+  "background_color": "#FFFFFF",
+  "theme_color": "#FFFFFF",
+  "icons": [{ "src": "apple-touch-icon.png", "sizes": "180x180", "type": "image/png" }]
+}
