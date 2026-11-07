@@ -10,6 +10,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#72243E">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" href="favicon.png">
 <title>Mignuance Co.｜オーナー</title>
 <style>
@@ -18,12 +19,18 @@
   #top { position: fixed; top: 0; left: 0; right: 0; height: env(safe-area-inset-top); background: #72243E; }
   #wrap { position: fixed; top: env(safe-area-inset-top); left: env(safe-area-inset-left); right: env(safe-area-inset-right); bottom: env(safe-area-inset-bottom); }
   iframe { width: 100%; height: 100%; border: 0; display: block; }
+  /* 2026-11-07 ホーム画面のアイコンに数字を出すための許可（最初に1回だけ） */
+  #perm { display: none; position: fixed; left: 12px; right: 12px; bottom: calc(env(safe-area-inset-bottom) + 12px); z-index: 9; background: #72243E; color: #fff; border-radius: 14px; padding: 12px 14px; font: 14px/1.6 "Hiragino Sans", system-ui, sans-serif; box-shadow: 0 6px 20px rgba(0,0,0,.25); }
+  #perm button { font: inherit; font-weight: 700; border: 0; border-radius: 10px; padding: 10px 14px; margin-top: 8px; min-height: 44px; }
+  #perm .y { background: #FAC775; color: #5C1C32; }
+  #perm .n { background: transparent; color: #F4D9E2; }
   #ng { display: none; padding: 48px 24px; text-align: center; font: 14px/1.8 "Hiragino Sans", system-ui, sans-serif; color: #7A6A70; }
 </style>
 </head>
 <body>
 <div id="ng">このページは、もらったリンクから開いてください。</div>
 <div id="top"></div>
+<div id="perm">確認まちの件数を、ホーム画面のアイコンに数字で出せます（最初に1回だけ許可が必要です）。<br><button class="y" id="permY">数字を出す</button><button class="n" id="permN">今はしない</button></div>
 <div id="wrap"><iframe id="app" title="Mignuance Co. オーナー" allow="clipboard-write"></iframe></div>
 <script>
 /* オーナーのアプリの入口（2026-10-28）。中身はMignuanceのApps Script（view=owner）。
@@ -36,6 +43,43 @@
   /* メールのボタンから来たとき（&go=<項目ID>）はその項目を直接開く 2026-10-31 */
   var go = new URLSearchParams(location.search).get("go") || "";
   document.getElementById("app").src = base + "?view=owner&s=" + encodeURIComponent(s) + (/^[0-9a-f]{32}$/.test(go) ? "&go=" + go : "");
+})();
+
+/* 2026-11-07 アイコンの数字（バッジ）。中のアプリから件数が届いたら付ける。
+   iPhoneではホーム画面から開いたときだけ使え、通知の許可が要る（許可はこの画面のボタンからしか出せない） */
+(function () {
+  var N = 0;
+  function apply() {
+    try {
+      if (!("setAppBadge" in navigator)) return;
+      if (N > 0) navigator.setAppBadge(N).catch(function () {}); else navigator.clearAppBadge().catch(function () {});
+    } catch (e) {}
+  }
+  function askShown() {
+    try {
+      var standalone = (window.navigator.standalone === true) || window.matchMedia("(display-mode: standalone)").matches;
+      if (!standalone || !("Notification" in window) || !("setAppBadge" in navigator)) return false;
+      if (Notification.permission !== "default") return false;
+      if (localStorage.getItem("owner_badge_no") === "1") return false;
+      return true;
+    } catch (e) { return false; }
+  }
+  window.addEventListener("message", function (e) {
+    var d = e.data;
+    if (!d || d.type !== "mignuance-owner-badge") return;
+    if (!/(^|\.)googleusercontent\.com$|(^|\.)google\.com$/.test(new URL(e.origin).hostname)) return;
+    N = Math.max(0, Number(d.n) || 0);
+    apply();
+    if (N > 0 && askShown()) document.getElementById("perm").style.display = "block";
+  });
+  document.getElementById("permY").addEventListener("click", function () {
+    document.getElementById("perm").style.display = "none";
+    try { Notification.requestPermission().then(function () { apply(); }); } catch (e) {}
+  });
+  document.getElementById("permN").addEventListener("click", function () {
+    document.getElementById("perm").style.display = "none";
+    try { localStorage.setItem("owner_badge_no", "1"); } catch (e) {}
+  });
 })();
 </script>
 </body>
