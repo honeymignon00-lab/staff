@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="apple-mobile-web-app-title" content="不足分のお振込">
+<title>7月札幌 不足分のお振込｜honey mignon</title>
+<style>
+:root{--pink:#e0607e;--pinkbg:#fff1f4;--ink:#3a2a30;--sub:#8a7178;--line:#f2d4db}
+*{box-sizing:border-box}
+body{margin:0;background:var(--pinkbg);color:var(--ink);font-family:-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif;font-size:16px;line-height:1.6}
+.wrap{max-width:480px;margin:0 auto;padding:24px 16px 48px}
+h1{font-size:20px;margin:0 0 4px;text-align:center}
+.ev{text-align:center;color:var(--sub);font-size:14px;margin-bottom:20px}
+.card{background:#fff;border-radius:16px;padding:20px;box-shadow:0 2px 10px rgba(224,96,126,.12);margin-bottom:16px}
+label{font-weight:600;display:block;margin-bottom:6px}
+.hint{font-size:13px;color:var(--sub);margin:-2px 0 10px}
+input{width:100%;font-size:17px;padding:14px;border:1.5px solid var(--line);border-radius:12px;outline:none}
+input:focus{border-color:var(--pink)}
+button{width:100%;min-height:56px;margin-top:14px;font-size:17px;font-weight:700;color:#fff;background:var(--pink);border:0;border-radius:12px}
+button:disabled{opacity:.5}
+.pay{text-align:center;padding:8px 0 4px}
+.pay .lb{font-size:14px;color:var(--sub)}
+.pay .num{font-size:40px;font-weight:800;color:var(--pink);letter-spacing:.02em}
+.pay .br{font-size:15px;font-weight:700;margin-bottom:6px}
+table{width:100%;border-collapse:collapse;font-size:15px;margin-top:12px}
+td{padding:8px 4px;border-top:1px solid var(--line)}
+td:first-child{color:var(--sub);width:50%}
+td.r{text-align:right}
+tr.tot td{font-weight:800;color:var(--pink)}
+.msg{padding:14px;border-radius:12px;font-size:15px}
+.msg.err{background:#fdecec}
+.note{font-size:13px;color:var(--sub);margin-top:12px}
+h2{font-size:16px;margin:0 0 4px}
+.bank td:first-child{width:36%}
+.bank td:last-child{font-weight:600;word-break:break-all}
+.bnote{white-space:pre-line;font-size:14px;background:#fff7e0;border-radius:10px;padding:12px;margin-top:12px}
+.done{background:#fff;color:var(--pink);border:2px solid var(--pink)}
+.ov{position:fixed;inset:0;background:rgba(58,42,48,.45);display:none;align-items:center;justify-content:center;padding:24px;z-index:10}
+.ov.on{display:flex}
+.pop{background:#fff;border-radius:18px;padding:28px 20px 16px;max-width:360px;width:100%;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.2)}
+.pop .ic{width:56px;height:56px;border-radius:50%;background:#e8f6ec;color:#2b7a46;font-size:30px;line-height:56px;margin:0 auto 12px;font-weight:800}
+.pop p{margin:6px 0}
+.pop .big{font-size:17px;font-weight:700}
+</style>
+</head>
+<body><div class="wrap">
+  <h1>不足分のお振込について</h1>
+  <div class="ev">7月 札幌ル・トロワ POPUP（7月31日〜8月2日）</div>
+  <div class="card">
+    <div class="note" style="margin:0 0 14px">売上金額が出店料などに届かなかった方に、差額のお振込をお願いしております。ご本人確認のため、出店のお申し込みでご登録いただいた本名をご入力ください。</div>
+    <label for="q">本名（カタカナ）</label>
+    <div class="hint">姓と名のあいだの空白は、あってもなくても大丈夫です</div>
+    <input id="q" autocomplete="off" placeholder="例）ハニー ミニヨン" onkeydown="if(event.key==='Enter')go()">
+    <button id="btn" onclick="go()">お振込額を確認する</button>
+  </div>
+  <div id="out"></div>
+</div>
+<div class="ov" id="ov" onclick="if(event.target===this)closePop()"><div class="pop">
+  <div class="ic">&#10003;</div>
+  <p class="big">ありがとうございます。</p>
+  <p>入金はこちらで確認いたしますので、DMでのご連絡は不要です。</p>
+  <button onclick="closePop()">閉じる</button>
+</div></div>
+<script>
+var R = [{"s": "xGsrCnXAFMSa6Hm4/4Kr4A==", "i": "aVBzj7ZYuUDsTThe", "c": "REkXCUhO9J/U0axuGX/03piPG6XDIqKFzU1BAuw4C7xhGez0KZSVtN1fBUfXnbKP7oT7ucIv+Ej13kpvCAlAeHuprRvz2jswW0pOvMLD636I2T8+KasyNnigKAyQjOKHVqy6ni/WSN2JeFfUdkbOWAeO77TFkisKWi87rHDjp3wKCs7ql6w2KF/5xmwCk/4pDqePaXwDXBHC+5Nytbw63/hVYiPikkxsQAjYUoXY2cj7utzWsm7OST3b4lPBvBEZ2+UehsSFLXdGggLNapX/Lw6G8HSzlMPWyT2NHnbVZP7q8JhZxW5t461XO4UHDgbldrCpNZQvRMkXsGmyiFOt6pZSCMkUCx1E7tuNjrA89yF7DqbW9elhcJpHeZfH90DF5QmoBOO7E7SWwY/4VB9kLuKLh1E5kHb7cmQ30jLjEgDWPjZ2cL2ZcCSZQgA2i7ijGFSocZF1xEFD0X1KRmFeeHjKD7EoLpbM62vs8QJrD0LkbmWEXuqiXN8/tdcv9J51WnT+PvgRvreZUqIWi0+++jELzFxuFCVrjk9cSqIS6j0QcdofsP9ptnHTCA=="}, {"s": "Nqs7ry4YCs4nRZy9Enho7Q==", "i": "gTiNFz50uopIBC28", "c": "RN/Ll+/w6tDc/xAeo/Ywe5kIYsF7GEuG2EOpLLsjRZ41+t+YYD3EsiHYyi+uujRZGUUGKToQAHkonQSuPM17729+DV9FWFfUquG5qEOQIWDEbwO4noJw2YsX5SRhC4g2e0T1luJS0jM4WxtM1a5GR92Ug/Pv7YI2wMrER0vnNxk78K+M1QBCcSx+UAU1KHMZ2rLDF/X/N6yytXy4TOwPY2O2HRKBKf9W5D8qoS/QONtU7CCYAVODZn2zVGORrKw0qM/F2KOo+hGNymn2+tDp7EDkdB51InbB/2szGXc7vjKNYHWE3jelSAJiZfZdKRe3b1VrG+A9NI+2aTnAxqXO3ZH8v3m5qhHjXY8v3um82rGKInoD8BXbf4v9TSm32aLoz+dx9dBeM68zKGH6oOdPHB1FrKR8H2GTvSrXlHkXZ/Lz0dFf2E8oGct1ysqOgROAogBFkwge6tbPg+aGFVBlxsBCCzcaObgcdZF4S064hiiv6pfk2NdVtCSp67j6b3nE/FMEq20fUyhJForF7mCOtNSara5JjV/0ee948CAUeb69fxV97N5RPr/J/Ibt0cZ628O56wkmNeEnEAWYHGCBKRlu0p2lpC9r52UsNAZOfBOH496xQzpid6weHOVJ"}, {"s": "v+tvPfKqsRFYuZU8dSgmIw==", "i": "Gpne5ofyV0YQzdrw", "c": "OY+fg28Ewfdma1upyf9M0gCkqXtW1oY//guSl/GL4o/GTwLpKJ88J3sI+KkWQhwVmL7LpgWCBFDRzKkdXmpiJEOiP6fmMqAsU4Tia/twKq/F3d3UP3LKqsjCLFUunRclYIhGvz8L7fuEM0aHmzkbAo1GghMcXwxUXCOkYdIndvsQIvbeqRZfQpRy4+VbqSgDXUoII0/TTg1JZn0daIjlx1SPVy5tGJLsy6dxHY9JEC+6pbLeNY32XEnfU6YO8haGUqAsKrLdUiDwlIriKydmyiI00SprldCaN4od+1WFOGFgQuNWi26Cs9Yw1D6D+buiRGcx/D2qwo6oEegF4BZY3A9seToEPOEaSA962kfARvUhs1G6tO0r+XgiI6akgfuvU/rfilIcFJV8fC4BESXi2Dya6T4Rv0eft+gq3TnZjLse6b4lxi0SLaj4w3hb+j7xkus0YlKSildAWNAgXudvG1YsotaQyMCyeUpavOHU+Cbigyl2PKOhu3hUNbQh4Q8IriCdKuZgIxBUftuQ36O8+mihnDyJ5gWBTLetxHSKtZUH9KnRYG7zmzF5i9I="}, {"s": "sncQNyn83ncD/Rbxr1VhOw==", "i": "9QWqdWyGKbcYUThW", "c": "OmE+dLbMx/PoFbyQDVQEiBwKuOo7Zvsq+MccB5C/LRiRRcEbk3dqifYEO168xCDMcGCP8OPgueGzRzcMkm/t3i28sji0f19xzcukucLp+SqHf8Yc5CBaxINSqcHErwBUDbysjAt0YWWbfTtsD0UN708QgUEMrcBvzbly1SX5qBeHafitw+pFZZ5U6jNt00g/LxUxGniajb/rXVurLUZBaZBtNq0j4IQo/KPgOCe3+3DZV+NsRF30KG1YibikiEPeta/rY42GIbnonZYjGcBuL4Ipbiu4nbA7e0ENlYyEAK1EFHQQS1jW+8ZYwaBOReVLwxEdAW3XMKckvroCYCpqR3P3DUbtr0ejEeaBzY3dgHwCd0XUfN/1K/gwJWR5h9A1du0m2EbfZ/Ucc2xaCcBL/P1HHI8Gu96upK0EkA+3JpZt+33KRF+2HZUkbtBAe7bb8eqi3jtCTICDTEFm1cDCrtxOUsfRs9wWTo1P8hrakaqiaotklWNGKRXvxDRxjQYPLE9lWGFFJy6TkosgoHlpjost3f5vEuxuXC0HFWtz+b8XGiaEL6+iJi1uT5mbxdC/XVo="}];
+var ITER = 150000;
+var NOTE = '振込手数料はご負担をお願いいたします。\n\nお振込み後のDMご連絡は不要です。当方で入金を確認いたしますので、そのままお待ちください。\n入金が確認できない場合のみ、こちらからご連絡いたします。';
+function norm(s){
+  s = String(s||'').normalize('NFKC');
+  s = s.replace(/[\s　・,，、。]/g,'');
+  return s.replace(/[ぁ-ゖ]/g,function(c){return String.fromCharCode(c.charCodeAt(0)+0x60);});
+}
+function b64(s){var b=atob(s),u=new Uint8Array(b.length);for(var i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u;}
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;');}
+function yen(n){return String(n).replace(/\B(?=(\d{3})+(?!\d))/g,',')+'円';}
+async function tryOne(name, r){
+  var base = await crypto.subtle.importKey('raw', new TextEncoder().encode(name), 'PBKDF2', false, ['deriveKey']);
+  var key = await crypto.subtle.deriveKey({name:'PBKDF2',salt:b64(r.s),iterations:ITER,hash:'SHA-256'}, base, {name:'AES-GCM',length:256}, false, ['decrypt']);
+  try{ var p = await crypto.subtle.decrypt({name:'AES-GCM',iv:b64(r.i)}, key, b64(r.c)); return JSON.parse(new TextDecoder().decode(p)); }catch(e){ return null; }
+}
+async function go(){
+  var name = norm(document.getElementById('q').value), out = document.getElementById('out'), btn = document.getElementById('btn');
+  if(!name){ out.innerHTML='<div class="msg err">本名（カタカナ）を入れてください。</div>'; return; }
+  btn.disabled = true; btn.textContent = '確認しています…'; out.innerHTML='';
+  var hit = null;
+  for(var i=0;i<R.length && !hit;i++){ hit = await tryOne(name, R[i]); }
+  btn.disabled = false; btn.textContent = 'お振込額を確認する';
+  if(!hit){ out.innerHTML='<div class="msg err">見つかりませんでした。出店のお申し込みでご登録いただいた本名を、カタカナでもう一度お試しください。わからない場合は honeymignon.event@gmail.com までご連絡ください。</div>'; return; }
+  var rows = hit.rows.map(function(r){return '<tr><td>'+esc(r[0])+'</td><td class="r">'+esc(r[1])+'</td></tr>';}).join('');
+  rows += '<tr class="tot"><td>お振込いただく金額</td><td class="r">'+yen(hit.amount)+'</td></tr>';
+  var b = hit.bank;
+  var brows = [['銀行',b.bank],['支店',b.branch],['種別',b.type],['口座番号',b.number],['口座名義',b.holder]].map(function(r){return '<tr><td>'+esc(r[0])+'</td><td>'+esc(r[1])+'</td></tr>';}).join('');
+  out.innerHTML =
+    '<div class="card"><div class="pay"><div class="br">'+esc(hit.brand)+' 様</div><div class="lb">お振込いただく金額</div><div class="num">'+yen(hit.amount)+'</div></div>'+
+    '<table>'+rows+'</table><div class="note">7月札幌の売上から、出店料などを差し引いた結果、上の金額が不足となりました。</div></div>'+
+    '<div class="card"><h2>お振込先</h2><table class="bank">'+brows+'</table><div class="bnote">'+esc(NOTE)+'</div>'+
+    '<button class="done" onclick="openPop()">お振込みが済んだら押してください</button></div>';
+}
+function openPop(){document.getElementById('ov').classList.add('on');}
+function closePop(){document.getElementById('ov').classList.remove('on');}
+</script>
+</body>
+</html>
