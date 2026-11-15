@@ -35,6 +35,7 @@ tr.tot td{font-weight:800;color:var(--pink)}
 h2{font-size:16px;margin:0 0 4px}
 .bank td:first-child{width:36%}
 .bank td:last-child{font-weight:600;word-break:break-all}
+.hnote{font-size:14px;background:#e8f6ec;color:#2b5a3c;border-radius:10px;padding:12px;margin-top:12px}
 .bnote{white-space:pre-line;font-size:14px;background:#fff7e0;border-radius:10px;padding:12px;margin-top:12px}
 .done{background:#fff;color:var(--pink);border:2px solid var(--pink)}
 .ov{position:fixed;inset:0;background:rgba(58,42,48,.45);display:none;align-items:center;justify-content:center;padding:24px;z-index:10}
@@ -95,7 +96,7 @@ async function go(){
   out.innerHTML =
     '<div class="card"><div class="pay"><div class="br">'+esc(hit.brand)+' 様</div><div class="lb">お振込いただく金額</div><div class="num">'+yen(hit.amount)+'</div></div>'+
     '<table>'+rows+'</table><div class="note">7月札幌の売上から、出店料などを差し引いた結果、上の金額が不足となりました。</div></div>'+
-    '<div class="card"><h2>お振込先</h2><table class="bank">'+brows+'</table><div class="bnote">'+esc(NOTE)+'</div>'+
+    '<div class="card"><h2>お振込先</h2><table class="bank">'+brows+'</table><div class="hnote">口座名義に「１２ガツウメダエストポツプアツプ」と入っていますが、honey mignonの口座で間違いありません。札幌の不足分もこちらへお振込みください。</div><div class="bnote">'+esc(NOTE)+'</div>'+
     '<button class="done" onclick="openPop()">お振込みが済んだら押してください</button></div>';
 }
 function openPop(){document.getElementById('ov').classList.add('on');}
