@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="香港">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icon-512.png">
+<link rel="manifest" href="manifest.webmanifest">
+<title>香港</title>
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; background: #F3F4F8; overflow: hidden; }
+  @media (prefers-color-scheme: dark) { html, body { background: #0F1118; } }
+  #wrap { position: fixed; top: env(safe-area-inset-top); left: 0; right: 0; bottom: env(safe-area-inset-bottom); }
+  iframe { width: 100%; height: 100%; border: 0; display: block; }
+  #nokey { display: none; font: 15px/1.8 system-ui, sans-serif; color: #5A6178; padding: 40px 24px; }
+</style>
+</head>
+<body>
+<div id="wrap"><iframe id="app" title="香港" allow="clipboard-write"></iframe></div>
+<div id="nokey">合言葉がこの端末に入っていません。<br>いつも開いているMignuanceのURLの「k=…」の部分を、このページのURLの最後に「?k=…」として付けて開き直してください。</div>
+<script>
+(function () {
+  /* 11月香港のイベント専用ページ（Mignuanceの &ev=）だけを開く入口。2026-11-25 */
+  var EV = "3bf08abe758d80be9fbce75d0cd61953";
+  var base = "https://script.google.com/macros/s/AKfycbw8eWSgkGwNVdWxgAD1J1ScULO4AcmR-Xw36S2rfkC1_ONp-toWte0olhW3FnXj2eq6/exec";
+  var k = "";
+  try {
+    k = new URLSearchParams(location.search).get("k") || "";
+    if (k) localStorage.setItem("mignuance_k", k);
+    else k = localStorage.getItem("mignuance_k") || "";
+  } catch (e) {}
+  if (!k) { document.getElementById("wrap").style.display = "none"; document.getElementById("nokey").style.display = "block"; return; }
+  var fr = document.getElementById("app");
+  fr.src = base + "?k=" + encodeURIComponent(k) + "&ev=" + EV + location.hash;
+  function nudge() { fr.style.height = "calc(100% - 1px)"; setTimeout(function () { fr.style.height = "100%"; }, 120); }
+  fr.addEventListener("load", function () { setTimeout(nudge, 300); setTimeout(nudge, 1500); });
+  window.addEventListener("resize", function () { setTimeout(nudge, 200); });
+  window.addEventListener("orientationchange", function () { setTimeout(nudge, 400); });
+  window.addEventListener("pageshow", function () { setTimeout(nudge, 300); });
+  document.addEventListener("visibilitychange", function () { if (!document.hidden) setTimeout(nudge, 300); });
+  try { if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js", { scope: "./" }); } catch (e) {}
+})();
+</script>
+</body>
+</html>

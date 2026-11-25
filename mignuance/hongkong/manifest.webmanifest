@@ -1,0 +1,9 @@
+{
+  "name": "香港",
+  "short_name": "香港",
+  "display": "standalone",
+  "scope": "./",
+  "background_color": "#141824",
+  "theme_color": "#F3F4F8",
+  "icons": [{ "src": "apple-touch-icon.png", "sizes": "180x180", "type": "image/png" }, { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" }]
+}
