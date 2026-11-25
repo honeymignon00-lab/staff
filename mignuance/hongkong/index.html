@@ -33,6 +33,8 @@
     k = new URLSearchParams(location.search).get("k") || "";
     if (k) localStorage.setItem("mignuance_k", k);
     else k = localStorage.getItem("mignuance_k") || "";
+    /* 合言葉をアドレスにも付けておく。Safariの「ホーム画面に追加」はいまのアドレスで登録されるため（2026-11-25） */
+    if (k && !new URLSearchParams(location.search).get("k")) history.replaceState(null, "", location.pathname + "?k=" + encodeURIComponent(k) + location.hash);
   } catch (e) {}
   if (!k) { document.getElementById("wrap").style.display = "none"; document.getElementById("nokey").style.display = "block"; return; }
   var fr = document.getElementById("app");
